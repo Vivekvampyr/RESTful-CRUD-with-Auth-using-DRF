@@ -259,3 +259,131 @@ class ProductAPITests(APITestCase):
         )
 
         self.assertIn("token", response.data)
+
+    def test_list_returns_only_own_products(self):
+        response = self.client.get(
+            reverse("product-list")
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["id"],
+            self.product.id
+        )
+
+    def test_filter_by_stock(self):
+        Product.objects.create(
+            name="Monitor",
+            price="300.00",
+            sale_price="250.00",
+            stock=10,
+            owner=self.owner
+        )
+
+        response = self.client.get(
+            reverse("product-list"),
+            {"stock": 5}
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["name"], "Keyboard")
+
+
+    def test_search_by_name(self):
+        Product.objects.create(
+            name="Wireless Mouse",
+            description="Wireless computer accessory",
+            price="50.00",
+            sale_price="40.00",
+            stock=10,
+            owner=self.owner
+        )
+
+        response = self.client.get(
+            reverse("product-list"),
+            {"search": "wireless"}
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        results = response.data["results"]
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(
+            results[0]["name"],
+            "Wireless Mouse"
+        )
+
+
+    def test_ordering_by_price_descending(self):
+        Product.objects.create(
+            name="Monitor",
+            price="300.00",
+            sale_price="250.00",
+            stock=10,
+            owner=self.owner
+        )
+
+        response = self.client.get(
+            reverse("product-list"),
+            {"ordering": "-price"}
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        results = response.data["results"]
+
+        self.assertEqual(
+            results[0]["name"],
+            "Monitor"
+        )
+
+
+    def test_pagination(self):
+        Product.objects.create(
+            name="Monitor",
+            price="300.00",
+            stock=10,
+            owner=self.owner
+        )
+
+        Product.objects.create(
+            name="Mouse",
+            price="50.00",
+            stock=20,
+            owner=self.owner
+        )
+
+        response = self.client.get(
+            reverse("product-list"),
+            {"page_size": 1}
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(response.data["count"], 3)
+        self.assertEqual(len(response.data["results"]), 1)
+        self.assertIsNotNone(response.data["next"])
