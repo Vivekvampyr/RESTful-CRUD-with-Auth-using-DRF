@@ -5,6 +5,7 @@ from .serializers import ProductSerializer
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
+from decimal import Decimal
 
 User = get_user_model()
 
@@ -387,3 +388,154 @@ class ProductAPITests(APITestCase):
         self.assertEqual(response.data["count"], 3)
         self.assertEqual(len(response.data["results"]), 1)
         self.assertIsNotNone(response.data["next"])
+
+    def test_api_rejects_negative_price(self):
+        payload = self.product_payload()
+        payload["name"] = "Invalid price product"
+        payload["price"] = "-10.00"
+        payload["sale_price"] = None
+
+        response = self.client.post(
+            reverse("product-list"),
+            payload,
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertIn("price", response.data)
+
+        self.assertFalse(
+            Product.objects.filter(
+                name="Invalid price product"
+            ).exists()
+        )
+
+    def test_api_rejects_sale_price_equal_to_price(self):
+        payload = self.product_payload()
+        payload["name"] = "Invalid sale price product"
+        payload["price"] = "100.00"
+        payload["sale_price"] = "100.00"
+
+        response = self.client.post(
+            reverse("product-list"),
+            payload,
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertIn("sale_price", response.data)
+
+        self.assertFalse(
+            Product.objects.filter(
+                name="Invalid sale price product"
+            ).exists()
+        )
+
+    def test_patch_rejects_invalid_price_relationship(self):
+        response = self.client.patch(
+            reverse(
+                "product-detail",
+                args=[self.product.id],
+            ),
+            {"price": "70.00"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST,
+        )
+        self.assertIn("sale_price", response.data)
+
+        self.product.refresh_from_db()
+
+        self.assertEqual(
+            self.product.price,
+            Decimal("100.00"),
+        )
+        self.assertEqual(
+            self.product.sale_price,
+            Decimal("80.00"),
+        )
+
+    def test_cannot_update_another_users_product(self):
+        response = self.client.patch(
+            reverse(
+                "product-detail",
+                args=[self.other_product.id],
+            ),
+            {"name": "Hijacked product"},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND,
+        )
+
+        self.other_product.refresh_from_db()
+
+        self.assertEqual(
+            self.other_product.name,
+            "Mouse",
+        )
+
+    def test_cannot_delete_another_users_product(self):
+        response = self.client.delete(
+            reverse(
+                "product-detail",
+                args=[self.other_product.id],
+            )
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND,
+        )
+
+        self.assertTrue(
+            Product.objects.filter(
+                pk=self.other_product.id
+            ).exists()
+        )
+
+    def test_anonymous_client_cannot_create_product(self):
+        client = APIClient()
+
+        response = client.post(
+            reverse("product-list"),
+            self.product_payload(),
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_401_UNAUTHORIZED,
+        )
+
+    def test_session_auth_requires_csrf_for_unsafe_requests(self):
+        client = APIClient(enforce_csrf_checks=True)
+
+        logged_in = client.login(
+            username="owner",
+            password="owner-pass-123!",
+        )
+
+        self.assertTrue(logged_in)
+
+        response = client.post(
+            reverse("product-list"),
+            self.product_payload(),
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_403_FORBIDDEN,
+        )
