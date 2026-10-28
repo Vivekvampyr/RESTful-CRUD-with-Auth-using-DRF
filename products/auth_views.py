@@ -9,6 +9,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
 
 from .auth_serializers import (
     RegisterSerializer,
@@ -48,9 +49,10 @@ class RegisterAPIView(APIView):
 class CustomObtainAuthToken(ObtainAuthToken):
     authentication_classes = []
     permission_classes = [AllowAny]
+    parser_classes = [JSONParser]
 
     @extend_schema(
-        request=AuthTokenSerializer,
+        request={"application/json": AuthTokenSerializer},
         responses={200: TokenResponseSerializer},
         auth=[],
     )
