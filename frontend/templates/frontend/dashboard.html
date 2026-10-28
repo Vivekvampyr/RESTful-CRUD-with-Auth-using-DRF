@@ -1,0 +1,22 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}Dashboard | ProductHub{% endblock %}
+
+{% block content %}
+<section class="dashboard-intro">
+    <p class="auth-eyebrow">YOUR WORKSPACE</p>
+
+    <h1>Welcome, {{ user.username }}</h1>
+
+    <p>
+        Your account is authenticated. Next, we'll connect
+        this dashboard to your Product CRUD API.
+    </p>
+
+    <div class="hero-actions">
+        <a href="/api/docs/" class="button button-primary">
+            Explore API
+        </a>
+    </div>
+</section>
+{% endblock %}

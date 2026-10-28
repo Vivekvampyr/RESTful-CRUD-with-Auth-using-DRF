@@ -16,6 +16,7 @@ urlpatterns = [
     path("api/register/", RegisterAPIView.as_view(), name="api-register"),
     path("api/token/", CustomObtainAuthToken.as_view(), name="api_token_auth",),
     path("api/", include("products.urls")),
+    path("", include("frontend.urls")),
 
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
 

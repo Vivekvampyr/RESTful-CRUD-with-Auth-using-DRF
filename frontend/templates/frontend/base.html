@@ -1,0 +1,80 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}ProductHub{% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{% static 'frontend/css/style.css' %}"
+    >
+</head>
+
+<body>
+    <div class="site-shell">
+
+        <header class="site-header">
+            <a class="brand" href="/">
+                Product<span>Hub</span>
+            </a>
+
+            <nav class="site-nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'frontend:dashboard' %}">Dashboard</a>
+
+                    <span class="nav-username">
+                        {{ user.username }}
+                    </span>
+
+                    <form
+                        method="post"
+                        action="{% url 'frontend:logout' %}"
+                        class="nav-logout-form"
+                    >
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link-button">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'frontend:login' %}">Login</a>
+                    <a
+                        href="{% url 'frontend:register' %}"
+                        class="nav-register"
+                    >
+                        Create account
+                    </a>
+                {% endif %}
+
+                <a href="/api/docs/">API Docs</a>
+            </nav>
+        </header>
+
+        <main>
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="site-footer">
+            <span>ProductHub</span>
+            <span>Powered by Django REST Framework</span>
+        </footer>
+
+    </div>
+</body>
+</html>

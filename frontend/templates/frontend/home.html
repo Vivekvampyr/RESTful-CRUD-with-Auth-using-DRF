@@ -1,0 +1,67 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}ProductHub | Product Management{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="eyebrow">
+        <span class="status-dot"></span>
+        PRODUCT MANAGEMENT WORKSPACE
+    </div>
+
+    <h1>
+        Your products.
+        <br>
+        <span>One simple workspace.</span>
+    </h1>
+
+    <p class="hero-description">
+        Manage your product catalog, monitor inventory,
+        and keep your product information organized
+        through a clean, easy-to-use interface.
+    </p>
+
+    <div class="hero-actions">
+        <a class="button button-primary" href="/api/docs/">
+            Explore API Documentation
+        </a>
+
+        <span class="hero-note">
+            Built with Django and Django REST Framework
+        </span>
+    </div>
+</section>
+
+<section class="feature-grid">
+
+    <article class="feature-card">
+        <div class="feature-number">01</div>
+        <h2>Product catalog</h2>
+        <p>
+            View product details, prices, availability,
+            and inventory from one place.
+        </p>
+    </article>
+
+    <article class="feature-card">
+        <div class="feature-number">02</div>
+        <h2>Secure access</h2>
+        <p>
+            Use authenticated accounts and owner-based
+            access to manage your own products.
+        </p>
+    </article>
+
+    <article class="feature-card">
+        <div class="feature-number">03</div>
+        <h2>Built for your API</h2>
+        <p>
+            Connect the interface to your existing
+            REST API for real-time CRUD operations.
+        </p>
+    </article>
+
+</section>
+
+{% endblock %}

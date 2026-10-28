@@ -1,0 +1,56 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}Create Account | ProductHub{% endblock %}
+
+{% block content %}
+<section class="auth-layout">
+    <div class="auth-card">
+        <p class="auth-eyebrow">GET STARTED</p>
+
+        <h1>Create your account</h1>
+
+        <p class="auth-description">
+            Register to manage your own product catalog.
+        </p>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <div class="field-help">
+                            {{ field.help_text|safe }}
+                        </div>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <p class="field-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="button button-primary auth-submit">
+                Create account
+            </button>
+        </form>
+
+        <p class="auth-switch">
+            Already have an account?
+            <a href="{% url 'frontend:login' %}">Log in</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

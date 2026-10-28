@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'products',
+    'frontend',
 ]
 
 REST_FRAMEWORK = {
