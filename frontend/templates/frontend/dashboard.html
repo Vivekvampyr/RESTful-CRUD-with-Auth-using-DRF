@@ -1,22 +1,127 @@
 {% extends "frontend/base.html" %}
+{% load static %}
 
 {% block title %}Dashboard | ProductHub{% endblock %}
 
 {% block content %}
-<section class="dashboard-intro">
-    <p class="auth-eyebrow">YOUR WORKSPACE</p>
+<section class="dashboard-page">
 
-    <h1>Welcome, {{ user.username }}</h1>
+    <div class="dashboard-heading">
+        <div>
+            <p class="auth-eyebrow">YOUR WORKSPACE</p>
+            <h1>Product dashboard</h1>
+            <p class="dashboard-description">
+                Welcome back, {{ user.username }}. Here's your product inventory.
+            </p>
+        </div>
 
-    <p>
-        Your account is authenticated. Next, we'll connect
-        this dashboard to your Product CRUD API.
-    </p>
-
-    <div class="hero-actions">
-        <a href="/api/docs/" class="button button-primary">
-            Explore API
-        </a>
+        <div class="dashboard-summary">
+            <span class="summary-label">Total products</span>
+            <strong id="product-count">—</strong>
+        </div>
     </div>
+
+    <section class="inventory-panel">
+        <div class="inventory-header">
+            <div>
+                <h2>Your products</h2>
+                <p>Products associated with your account.</p>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                id="add-product"
+            >
+                Add Product
+            </button>
+
+            <button
+                id="refresh-products"
+                class="button button-secondary"
+                type="button"
+            >
+                Refresh
+            </button>
+        </div>
+
+        <div
+            id="product-message"
+            class="product-message"
+            role="status"
+            aria-live="polite"
+            hidden
+        ></div>
+
+        <div id="product-loading" class="product-state">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <p>Loading your products…</p>
+        </div>
+
+        <div id="product-error" class="product-state" hidden>
+            <h3>Couldn't load your products</h3>
+            <p id="product-error-text">
+                Please try again.
+            </p>
+            <button
+                id="retry-products"
+                class="button button-primary"
+                type="button"
+            >
+                Try again
+            </button>
+        </div>
+
+        <div id="product-empty" class="product-state" hidden>
+            <div class="empty-icon" aria-hidden="true">P</div>
+            <h3>No products yet</h3>
+            <p>
+                Your products will appear here once they're available
+                in your account.
+            </p>
+        </div>
+
+        <div id="product-table-container" class="product-table-container" hidden>
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Sale price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="product-table-body"></tbody>
+            </table>
+        </div>
+
+        <div id="product-pagination" class="product-pagination" hidden>
+            <span id="pagination-info"></span>
+
+            <div class="pagination-actions">
+                <button
+                    id="previous-page"
+                    class="button button-secondary"
+                    type="button"
+                >
+                    Previous
+                </button>
+                <button
+                    id="next-page"
+                    class="button button-secondary"
+                    type="button"
+                >
+                    Next
+                </button>
+            </div>
+        </div>
+    </section>
+
 </section>
+
+<script
+    src="{% static 'frontend/js/dashboard.js' %}"
+    defer
+></script>
 {% endblock %}
