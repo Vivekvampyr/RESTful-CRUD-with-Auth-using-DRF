@@ -6,9 +6,14 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
+from products.auth_views import (
+    RegisterAPIView,
+    CustomObtainAuthToken,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/register/", RegisterAPIView.as_view(), name="api-register"),
     path("api/token/", CustomObtainAuthToken.as_view(), name="api_token_auth",),
     path("api/", include("products.urls")),
 
